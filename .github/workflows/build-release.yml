@@ -41,8 +41,7 @@ jobs:
                 zlib1g-dev binutils python3 python3-h2
               make
               make test
-              make -C build -f objs/Makefile
-              NGINX_BINARY="$PWD/build/objs/nginx" \
+              NGINX_BINARY=/usr/sbin/nginx \
                 JA4_MODULE="$PWD/build/objs/ngx_http_ja4_module.so" make integration
               mkdir -p dist
               asset="ngx_http_ja4_module-debian${DEBIAN_VERSION}-amd64"
@@ -52,7 +51,7 @@ jobs:
                 cat /etc/os-release
                 dpkg-query -W nginx nginx-dev libc6 libssl-dev
                 cc --version
-                build/objs/nginx -V 2>&1
+                /usr/sbin/nginx -V 2>&1
               } > "dist/${asset}.buildinfo.txt"
             '
 

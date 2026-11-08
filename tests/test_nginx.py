@@ -1,6 +1,7 @@
 """Isolated nginx integration tests. Supply NGINX_BINARY and JA4_MODULE paths."""
 import importlib.util
 import os
+import re
 from pathlib import Path
 import socket
 import subprocess
@@ -34,14 +35,18 @@ class NginxTests(ParserHarness):
                         '-nodes', '-keyout', str(root / 'key.pem'),
                         '-out', str(root / 'cert.pem'), '-days', '1',
                         '-subj', '/CN=localhost'], check=True, capture_output=True)
+        version_text = subprocess.check_output([binary, '-v'], stderr=subprocess.STDOUT, text=True)
+        version = tuple(map(int, re.search(r'nginx/(\d+)\.(\d+)\.(\d+)', version_text).groups()))
+        listen_http2 = ' http2' if version < (1, 25, 1) else ''
+        http2_directive = 'http2 on;' if version >= (1, 25, 1) else ''
         servers = ''
         for name, extra, label in [('localhost', '', 'first'),
                                     ('second.local', '', 'second'),
                                     ('hrr.local', 'ssl_ecdh_curve P-256;', 'hrr')]:
             servers += f'''
             server {{
-                listen 127.0.0.1:{cls.port} ssl;
-                http2 on;
+                listen 127.0.0.1:{cls.port} ssl{listen_http2};
+                {http2_directive}
                 server_name {name};
                 ssl_certificate "{root}/cert.pem";
                 ssl_certificate_key "{root}/key.pem";
