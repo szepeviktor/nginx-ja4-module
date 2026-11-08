@@ -3,6 +3,10 @@
 This HTTP module exports `$ja4` and `$ja4_raw` for incoming TLS connections,
 using the shared parser in `ja4.c`. No nginx patch is required.
 
+CI builds and tests modules against Debian 12 and 13 nginx packages.
+Debian 11 is excluded because it does not provide the `nginx-dev` package
+used by this build.
+
 ## Build and install on Debian
 
 For nginx installed from Debian's repositories, use the matching `nginx-dev`
