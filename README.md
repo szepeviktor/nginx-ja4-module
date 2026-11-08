@@ -106,6 +106,26 @@ The optional `build-nginx.sh` contains the original Debian sbuild environment
 setup for rebuilding nginx packages. It requires root, installs packages and
 creates a builder user; it is separate from the module build above.
 
+## Verify downloaded modules
+
+Builds from the attestation-enabled workflow publish GitHub artifact attestations
+for the final stripped modules and their build information. Verify a downloaded
+module with the GitHub CLI before installing it:
+
+```sh
+gh attestation verify ngx_http_ja4_module-debian13-amd64.so \
+    --repo szepeviktor/nginx-ja4-module \
+    --signer-workflow szepeviktor/nginx-ja4-module/.github/workflows/build-release.yml
+```
+
+Use the Debian 12 filename when verifying that module. Verification binds the
+file digest to this repository's workflow and source commit. Check the reported
+source ref and commit against the release you intended to install.
+`SHA256SUMS` remains available to check download integrity.
+
+The original `v1.0.0` release predates this workflow change and has no artifact
+attestations. Pull request builds do not publish attestations.
+
 ## Configuration
 
 Load the module in the main context, before `http`:
